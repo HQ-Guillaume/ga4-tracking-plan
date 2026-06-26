@@ -27,6 +27,15 @@ REQUIRED_REFERENCE_FILES = [
     SKILL / "references" / "scenario_spa_routing.md",
     SKILL / "references" / "data_quality_privacy.md",
     SKILL / "references" / "qa_contract.md",
+    SKILL / "references" / "official_first_review.md",
+    SKILL / "references" / "example_comparison_contract.md",
+    SKILL / "references" / "ga4_ecommerce_parameter_policy.md",
+]
+REQUIRED_SKILL_SCRIPTS = [
+    SKILL / "scripts" / "ecommerce_matrix.py",
+    SKILL / "scripts" / "generate_tracking_plan_workbook.py",
+    SKILL / "scripts" / "validate_tracking_plan.py",
+    SKILL / "scripts" / "export_tracking_plan_csv.py",
 ]
 REQUIRED_SKILL_FILES = [
     SKILL / "SKILL.md",
@@ -35,8 +44,11 @@ REQUIRED_SKILL_FILES = [
     ROOT / "scripts" / "create_tracking_plan_template.py",
     ROOT / "scripts" / "create_event_scenario_library.py",
     ROOT / "scripts" / "generate_tracking_plan_workbook.py",
+    ROOT / "scripts" / "validate_tracking_plan.py",
+    ROOT / "scripts" / "export_tracking_plan_csv.py",
     ROOT / "scripts" / "validate_package.py",
     *REQUIRED_REFERENCE_FILES,
+    *REQUIRED_SKILL_SCRIPTS,
 ]
 EXPECTED_TABS = [
     "00 Overview",
@@ -135,6 +147,13 @@ def check_skill_resource_links() -> None:
         "references/scenario_spa_routing.md",
         "references/data_quality_privacy.md",
         "references/qa_contract.md",
+        "references/official_first_review.md",
+        "references/example_comparison_contract.md",
+        "references/ga4_ecommerce_parameter_policy.md",
+        "scripts/ecommerce_matrix.py",
+        "scripts/generate_tracking_plan_workbook.py",
+        "scripts/validate_tracking_plan.py",
+        "scripts/export_tracking_plan_csv.py",
     ]:
         if rel not in text:
             fail(f"SKILL.md does not mention bundled resource {rel}")
@@ -191,11 +210,36 @@ def check_tracking_plan_contract() -> None:
                 fail(f"{event['event_id']} ecommerce event has no GA4 items payload example")
 
 
+def run_command(command: list[str], label: str) -> subprocess.CompletedProcess[str]:
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        fail(f"{label} failed:\n{result.stdout}{result.stderr}")
+    return result
+
+
+def check_tracking_plan_validator() -> None:
+    fixture_path = SKILL / "references" / "generic_tracking_plan_fixture.json"
+    run_command(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "validate_tracking_plan.py"),
+            str(fixture_path),
+        ],
+        "Tracking plan validator",
+    )
+
+
 def check_generated_workbook() -> None:
     fixture_path = SKILL / "references" / "generic_tracking_plan_fixture.json"
     with tempfile.TemporaryDirectory() as temp_dir:
         output = Path(temp_dir) / "generic_tracking_plan.xlsx"
-        result = subprocess.run(
+        run_command(
             [
                 sys.executable,
                 str(ROOT / "scripts" / "generate_tracking_plan_workbook.py"),
@@ -203,16 +247,33 @@ def check_generated_workbook() -> None:
                 "--output",
                 str(output),
             ],
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-            check=False,
+            "Workbook generator",
         )
-        if result.returncode != 0:
-            fail("Workbook generator failed:\n" + result.stdout + result.stderr)
         if not output.exists():
             fail("Workbook generator did not create the expected output file")
         check_event_matrix(output)
+
+
+def check_csv_export() -> None:
+    fixture_path = SKILL / "references" / "generic_tracking_plan_fixture.json"
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output = Path(temp_dir) / "generic_tracking_plan.csv"
+        run_command(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "export_tracking_plan_csv.py"),
+                str(fixture_path),
+                "--output",
+                str(output),
+            ],
+            "CSV exporter",
+        )
+        if not output.exists() or output.stat().st_size == 0:
+            fail("CSV exporter did not create a non-empty output file")
+        header = output.read_text(encoding="utf-8-sig").splitlines()[0]
+        for expected in ["event_id", "event_name", "parameter", "scope_rule"]:
+            if expected not in header:
+                fail(f"CSV exporter output is missing header {expected}")
 
 
 def event_blocks(ws):
@@ -364,9 +425,11 @@ def main() -> int:
         check_skill_frontmatter,
         check_skill_resource_links,
         check_tracking_plan_contract,
+        check_tracking_plan_validator,
         check_public_files_are_generic,
         check_workbooks,
         check_generated_workbook,
+        check_csv_export,
         check_confidential_patterns,
     ]
     for check in checks:

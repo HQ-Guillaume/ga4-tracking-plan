@@ -12,11 +12,12 @@ Create an implementation-ready GA4 tracking schema that is useful for analysis, 
 - Start from the user's measurement context and concerned journeys before designing events.
 - Ask whether the user already has a tracking plan template, spreadsheet, schema file, naming convention, or previous GA4/GTM documentation.
 - If a template exists, analyze its structure and reuse its format where practical.
-- Always check current official Google Analytics documentation before recommending standard, recommended, or ecommerce GA4 events and parameters.
+- Always check current official Google Analytics and Google Tag Manager documentation before recommending standard, recommended, ecommerce, dataLayer, or GTM setup decisions.
+- Privilege official GA4/GTM setup over client examples unless the user explicitly asks to preserve a legacy implementation.
 - Prefer GA4 automatic, enhanced measurement, and recommended events when their semantics fit.
 - Design custom events only when no native or recommended GA4 option answers the business need cleanly.
 - Explicitly flag native, recommended, ecommerce, custom, and implementation-specific fields.
-- Never collect direct PII. Flag PII and consent risks.
+- Never collect direct PII or contact-derived identifiers in GA4, including email, phone, hashed email, hashed phone, customer IDs, postal addresses, order notes, or free-text messages. Flag PII and data minimization risks.
 - Avoid low-signal click tracking unless it answers a real analysis question.
 - Consolidate repeated same-name events whenever the trigger logic, parameter structure, and business meaning are materially the same; use one event definition and list possible values per variable instead of creating many near-duplicate event columns.
 - Do not block plan creation when implementation context is unknown. If the user gives only a page or journey, assume a standard GTM web container with dataLayer and GA4 web stream, then flag the assumption.
@@ -27,7 +28,7 @@ Create an implementation-ready GA4 tracking schema that is useful for analysis, 
 
 ## Official Documentation
 
-Use official Google sources for GA4 standard decisions. Browse or otherwise verify current docs during the task when available:
+Use official Google sources for GA4 standard decisions. Browse or otherwise verify current docs during the task when available. Official documentation is authoritative for event names, parameter names, parameter scope, dataLayer examples, GTM mapping, reserved names, limits, and privacy constraints. Bundled official-reference files are cached lookup aids only; do not treat them as a replacement for checking current official docs when browsing is available.
 
 - Recommended events: https://developers.google.com/analytics/devguides/collection/ga4/reference/events
 - Ecommerce measurement: https://developers.google.com/analytics/devguides/collection/ga4/ecommerce
@@ -37,11 +38,23 @@ Use official Google sources for GA4 standard decisions. Browse or otherwise veri
 
 If current docs cannot be checked, say so and mark standard/recommended choices as unverified.
 
+## Official-First Review
+
+When reviewing an existing tracking plan example, translating a legacy implementation plan into GA4, or preparing a plan for future QA/recette usage, read `references/official_first_review.md`. When comparing a fresh draft with user-provided examples, also read `references/example_comparison_contract.md`. Use them to lint event names, parameter scope, dataLayer examples, privacy risks, mandatory flags, workbook density, and QA readiness against official GA4/GTM setup.
+
 ## Default Workbook Template
 
 When the user does not provide an existing tracking-plan template, use `assets/ga4_tracking_plan_template.xlsx` as the default human-facing XLSX structure. Adapt its sheets and event matrix to the user's journeys instead of inventing a new workbook layout.
 
-When working inside this package repository and the plan is available as canonical JSON, use `scripts/generate_tracking_plan_workbook.py` to generate the XLSX workbook rather than manually rebuilding every sheet.
+Treat the bundled XLSX template as the primary delivery format for analyst-facing tracking plans. Improve readability through the generator's styling and grouping rules, but keep the default sheet structure stable unless the user explicitly asks for a different workbook.
+
+For template improvements learned from examples, prefer reusable sections inside the stable workbook: workbook navigation, compact event inventory, custom-definition registration, grouped event matrix, and QA/recette records. Do not create one tab per event by default unless the user explicitly asks for that format.
+
+When the plan is available as canonical JSON and an XLSX artifact is requested or implied, use `scripts/generate_tracking_plan_workbook.py` from this skill folder to generate the workbook rather than manually rebuilding every sheet. Run `scripts/validate_tracking_plan.py` first, or rely on the generator's built-in validation gate, before sharing workbook output.
+
+Use `scripts/export_tracking_plan_csv.py` only when the user requests CSV output or needs a secondary long-format view for review, QA ingestion, or diffing. Do not replace the default workbook template with a CSV-only deliverable. The CSV includes event context, parameter scope, requirement, expected value, availability, and scope rule for each row.
+
+`scripts/ecommerce_matrix.py` is the internal ecommerce parameter and matrix helper used by the workbook generator, CSV exporter, and JSON validator.
 
 ## Reference Routing
 
@@ -59,12 +72,15 @@ Use `references/ga4_event_scenario_library.json` for structured lookup when prod
 Read only the additional scenario references that match the requested scope:
 
 - `references/scenario_ecommerce.md` for product, cart, checkout, purchase, refund, and promotion journeys
+- `references/ga4_ecommerce_parameter_policy.md` for official ecommerce parameter scope, event-level versus item-level fallback rules, stable row order, and matrix grouping
 - `references/scenario_lead_generation.md` for forms, quote flows, signup, appointment, callback, and lead submission
 - `references/scenario_search_listing.md` for search, filters, listing pages, result selection, and product discovery lists
 - `references/scenario_account_support_content.md` for account entry, login/signup context, support, FAQ, downloads, content, video, and contact intent
 - `references/scenario_spa_routing.md` for single-page apps, client-side routing, virtual pages, and duplicate page_view risk
 - `references/data_quality_privacy.md` for naming, value normalization, data minimization, cardinality, and privacy checks
 - `references/qa_contract.md` for DebugView, GTM Preview, network, evidence, and future testing-skill readiness
+- `references/official_first_review.md` when reviewing example plans, translating legacy wrappers, or optimizing for both web analysts and future QA/recette agents
+- `references/example_comparison_contract.md` when comparing a generated plan with user-provided examples and deciding whether the skill should evolve
 - `references/tracking_plan_schema.json` when producing machine-readable JSON
 - `references/generic_tracking_plan_fixture.json` as a generic example of the contract only, never as client evidence
 - `references/official_ga4_recommended_events.json` for structured official recommended-event lookup when available
@@ -83,10 +99,10 @@ Collect:
 - `business_goal`: why the journey matters
 - `analysis_needs`: questions the tracking must answer
 - `success_signals`: conversions, key events, funnel steps, revenue actions, qualified engagement
-- `audience_or_segment_needs`: user type, login state, customer type, country, device, campaign, consent state
+- `audience_or_segment_needs`: user type, login state, customer type, country, device, campaign
 - `data_available`: page metadata, product data, form metadata, transaction data, user/account state
 - `implementation_context`: GTM, gtag.js, dataLayer, CMS, ecommerce platform, SPA routing, server-side tagging. If unknown, assume standard GTM + dataLayer and continue.
-- `constraints`: privacy, consent, PII risk, technical limits, reporting limits
+- `constraints`: privacy, PII risk, technical limits, reporting limits
 - `priority`: `must`, `should`, or `could`
 
 Summarize the interpreted brief before the event schema:
@@ -120,10 +136,14 @@ For ecommerce journeys:
 
 - verify event names and parameters against current official ecommerce docs
 - keep ecommerce events in ecommerce-only event blocks; do not mix ecommerce event slots with page, search, signup, support, account, or other interaction events in the same matrix block
+- split ecommerce blocks by compatible parameter family, for example promotions, product lists, product detail, cart, checkout, and transactions
 - list ecommerce rows using the official GA4 event parameter names and item parameter names, for example `currency`, `value`, `transaction_id`, `items`, `items[].item_id`; do not substitute generic interaction fields such as `event_data.*` inside ecommerce event definitions
+- respect parameter scope. Prefer event-level list and promotion parameters when all items share the same list or promotion. Use item-level equivalents only when items in the same event genuinely need different values.
 - use the official `items` array pattern where applicable
 - include every official required or conditionally required ecommerce parameter for the selected event; if a required parameter is unavailable, mark the event as not implementable for that context rather than weakening the GA4 ecommerce format
-- include official optional ecommerce parameters when the business or page data can provide them, and mark unavailable optional parameters as `-` or `not_available`
+- include official optional ecommerce parameters when the business or page data can provide them, and mark unavailable optional parameters as `not_available`, `not_applicable`, or `event_level_used` rather than leaving them visually missing
+- classify non-official item fields as `custom_item_parameter`, never as `ga4_ecommerce_item_parameter`; add them only when they answer a clear analysis need and list a matching item-scoped custom dimension if GA4 UI reporting is required
+- use official `items[].item_variant` for product variant/color when it is sufficient; do not create separate custom color or size item fields by default
 - include stable item identifiers and merchandising context when available
 - require transaction identifiers for purchase-like events to support deduplication
 - avoid inventing ecommerce event names when an official GA4 ecommerce event fits
@@ -162,6 +182,7 @@ Classify every parameter, property, or implementation variable:
 - `ga4_recommended_parameter`
 - `ga4_ecommerce_item_parameter`
 - `custom_event_parameter`
+- `custom_item_parameter`
 - `custom_user_property`
 - `gtm_builtin_variable`
 - `data_layer_variable`
@@ -180,7 +201,7 @@ For each parameter, define:
 - reporting purpose
 - custom dimension or custom metric registration need
 - cardinality risk
-- PII or consent risk
+- PII or data minimization risk
 
 ## Step 5: Build The Tracking Schema
 
@@ -189,8 +210,10 @@ In XLSX event matrices, an event slot should represent one reusable event defini
 For ecommerce XLSX blocks:
 
 - use ecommerce-only blocks such as `Ecommerce promotions`, `Product list`, `Cart`, `Checkout`, or `Purchase`
+- keep compatible ecommerce families separate when their event-level parameters differ materially. Do not group product-list, PDP, cart, checkout, and purchase events into the same event matrix block merely because they are part of one journey.
 - use official GA4 ecommerce parameter names in the matrix rows (`currency`, `value`, `items`, `items[].item_id`, etc.)
 - keep dataLayer wrapper paths such as `ecommerce.currency` as implementation notes or GTM mapping details, not as replacements for the official GA4 parameter names
+- use a stable official-first row order inside each ecommerce family and show `not_available`, `not_applicable`, or `event_level_used` for rows that are not sent
 - do not add custom interaction rows to ecommerce events unless they are clearly documented custom event or item parameters and do not replace required GA4 ecommerce parameters
 - if the page cannot provide required ecommerce parameters, recommend a non-ecommerce intent event instead of forcing an incomplete ecommerce event
 
@@ -245,7 +268,7 @@ Before finalizing, review the plan as a web analyst:
 - Are ecommerce events isolated from non-ecommerce events and documented with official GA4 ecommerce parameters?
 - Are all required or conditionally required ecommerce parameters present, especially `items`, one of `items[].item_id` or `items[].item_name`, and `transaction_id` for purchase/refund?
 - Are high-cardinality fields avoided or flagged?
-- Are PII, consent, and data minimization risks flagged?
+- Are PII and data minimization risks flagged?
 - Is ecommerce revenue deduplication possible?
 - Are expected reports, explorations, or audiences supported by the schema?
 - Is implementation feasible from available page, dataLayer, or server data?

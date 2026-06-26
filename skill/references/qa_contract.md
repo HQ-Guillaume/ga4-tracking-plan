@@ -22,7 +22,7 @@ Each testable event should have:
 |---|---|
 | `OK` | Implemented and validated as expected |
 | `KO` | Implemented but missing, wrong, duplicated, or using unexpected values |
-| `Cannot test` | Blocked by access, consent, environment, data availability, or unavailable journey |
+| `Cannot test` | Blocked by access, environment, data availability, or unavailable journey |
 | `not_started` | JSON planning status before manual or automated QA begins |
 
 ## Future Testing Skill Expectations
@@ -30,6 +30,4 @@ Each testable event should have:
 - The tracking plan should provide enough information to identify a page or journey, reproduce the event, inspect the dataLayer, and verify GA4 network payloads.
 - Expected network checks should reference the event name and important parameters, not only screenshots.
 - Ecommerce QA should verify official ecommerce fields and the `items` array.
-- Consent-sensitive events should document whether testing requires granted, denied, or mixed consent states.
 - Test evidence should stay outside the generic skill repository unless it is a generic fixture.
-

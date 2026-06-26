@@ -6,10 +6,15 @@ Use this reference when the scoped journey includes merchandising, product disco
 
 - Verify selected events and required parameters against current official Google Analytics ecommerce documentation before finalizing.
 - Keep ecommerce events in ecommerce-only event blocks in the XLSX matrix.
+- Split ecommerce event blocks by compatible parameter family: promotions, product lists, product detail, cart, checkout, and transactions.
 - Use official GA4 parameter names in the event matrix: `currency`, `value`, `transaction_id`, `coupon`, `shipping`, `tax`, `items`, `items[].item_id`, `items[].item_name`, and other official item parameters.
 - Keep GTM wrapper paths such as `ecommerce.items` in implementation notes or dataLayer examples, not as replacements for official GA4 parameter names.
+- Respect event-level versus item-level scope. Prefer event-level `item_list_id`, `item_list_name`, `promotion_id`, `promotion_name`, `creative_name`, and `creative_slot` when all items share the same value. Use item-level equivalents only for mixed-list or mixed-promotion events because item-level values override event-level values.
+- Show `items[].quantity` in matrices. GA4 defaults quantity to `1` if omitted, but the plan should still state whether the implementation sends `1`, relies on the default, or cannot provide the value.
+- Use explicit availability states: `send`, `send_default_quantity`, `event_level_used`, `not_available`, or `not_applicable`.
 - If required ecommerce data is unavailable, mark the ecommerce event as not implementable for that scope and consider a separate non-ecommerce intent event.
 - Consolidate repeated same-name events when the parameter structure is identical; list allowed values for list names, creative slots, item categories, or component locations.
+Read `ga4_ecommerce_parameter_policy.md` before finalizing ecommerce matrices or CSV exports.
 
 ## Event Selection
 
@@ -58,4 +63,3 @@ dataLayer.push({
 - In network checks, verify GA4 requests contain the expected event name and item parameters.
 - For purchase and refund, verify `transaction_id` uniqueness and revenue deduplication behavior.
 - For promotions, test impression and click with the same `promotion_id` / `promotion_name` when applicable.
-

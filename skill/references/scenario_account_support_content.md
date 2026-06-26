@@ -9,6 +9,8 @@ Use this reference for account entry, authentication context, self-service suppo
 - Use `select_content` for meaningful content/module selections when enhanced measurement click data is not sufficient.
 - Use custom account/support intent events when the interaction is business-specific and not represented by official GA4 events.
 - Avoid tracking every click in support pages; prioritize actions tied to intent, deflection, contact, or resolution.
+- For scientific libraries, protocol libraries, document centers, and resource hubs, keep the analyst layer focused on search/filter, content selection, and file download outcomes instead of one event per visible card.
+- For embedded videos, prefer GA4 enhanced measurement video events when they work for the player. Use custom video events only for non-supported players or business-specific webinar/live metadata.
 
 ## Event Selection
 
@@ -22,6 +24,8 @@ Use this reference for account entry, authentication context, self-service suppo
 | File downloaded | `file_download` | enhanced_measurement | Use enhanced measurement if sufficient |
 | Outbound click | `click` | enhanced_measurement | Use enhanced measurement if sufficient |
 | Video progress | `video_start`, `video_progress`, `video_complete` | enhanced_measurement | Use native enhanced measurement events if sufficient |
+| Resource search/filter | `search`, `select_content`, `filter_apply` | recommended or custom | Use `search` for submitted queries and `filter_apply` only when filter analysis is needed |
+| Resource selected | `select_content` | recommended | Use for article, protocol, webinar, FAQ, or document-card selection when download/click events are not enough |
 
 ## Suggested Parameters
 
@@ -54,4 +58,4 @@ dataLayer.push({
 - Confirm login/signup events fire only after success.
 - Confirm account/support events contain no email, phone, customer number, message text, or ticket details.
 - Attach screenshots showing the content or support action context without personal information.
-
+- Confirm custom resource-library events are not duplicates of enhanced `file_download`, outbound `click`, or supported video events.
