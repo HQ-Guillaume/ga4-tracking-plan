@@ -1,4 +1,4 @@
-# Business Scenario Analysis
+﻿# Business Scenario Analysis
 
 Use this reference when the user gives a website, page, user journey, or limited brief and expects practical web analyst judgment, not just event generation.
 
@@ -18,8 +18,8 @@ Use this reference when the user gives a website, page, user journey, or limited
 2. Translate visible actions into business questions before choosing events.
 3. Separate macro conversions, micro conversions, and diagnostic signals.
 4. Prefer platform-native events where semantics fit.
-5. Use `custom_event_decision_matrix.md` before accepting custom events.
-6. Use `parameter_proposition_library.json` to choose reusable parameters and value rules, then verify official parameters in current platform docs.
+5. Use `custom-event-decision-matrix.md` before accepting custom events.
+6. Use `parameter-proposition-library.json` to choose reusable parameters and value rules, then verify official parameters in current platform docs.
 7. Consolidate repeated interactions into one reusable event with controlled values.
 8. Design event families, parameter names, and QA identifiers so the plan can scale to future pages, markets, components, and journey variants.
 9. Reject or deprioritize low-signal tracking that creates maintenance cost without analysis value.

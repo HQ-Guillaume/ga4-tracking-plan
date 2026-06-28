@@ -282,7 +282,7 @@ class Issue:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate and lint a GA4 tracking-plan JSON file.")
     parser.add_argument("plan", type=Path, help="Path to the tracking-plan JSON file.")
-    parser.add_argument("--schema", type=Path, default=None, help="Optional JSON schema path. Defaults to references/tracking_plan_schema.json.")
+    parser.add_argument("--schema", type=Path, default=None, help="Optional JSON schema path. Defaults to references/03-rules/tracking-plan-schema.json.")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format.")
     parser.add_argument("--warnings-as-errors", action="store_true", help="Exit non-zero when warnings are present.")
     return parser.parse_args()
@@ -293,23 +293,23 @@ def load_json(path: Path) -> Any:
 
 
 def default_schema_path() -> Path:
-    return Path(__file__).resolve().parents[1] / "references" / "tracking_plan_schema.json"
+    return references_dir() / "tracking-plan-schema.json"
 
 
 def references_dir() -> Path:
-    return Path(__file__).resolve().parents[1] / "references"
+    return Path(__file__).resolve().parents[1] / "references" / "03-rules"
 
 
 def default_piano_catalog_path() -> Path:
-    return references_dir() / "piano_official_events.json"
+    return references_dir() / "piano-official-events.json"
 
 
 def default_ga4_recommended_events_path() -> Path:
-    return references_dir() / "official_ga4_recommended_events.json"
+    return references_dir() / "official-ga4-recommended-events.json"
 
 
 def default_ga4_scenario_library_path() -> Path:
-    return references_dir() / "ga4_event_scenario_library.json"
+    return references_dir() / "ga4-event-scenario-library.json"
 
 
 def is_clearly_required_ga4_parameter(value: Any) -> bool:
@@ -521,7 +521,7 @@ def check_platform_mapping(
             "error",
             "PIANO_OFFICIAL_EVENT_UNKNOWN",
             f"{base}.event_name",
-            f"'{event_name}' is marked {classification} but is not in piano_official_events.json.",
+            f"'{event_name}' is marked {classification} but is not in piano-official-events.json.",
         )
         return
     if catalog_entry and classification == "piano_custom":

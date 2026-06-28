@@ -1,8 +1,8 @@
-# Piano Analytics Reference
+﻿# Piano Analytics Reference
 
 Use this reference only for Piano Analytics tracking plans or cross-platform mappings that include Piano. Always verify official Piano documentation during the task when browsing is available.
 
-Use `piano_official_events.json` for structured event lookup, mandatory property checks, and cross-platform scenario mapping.
+Use `piano-official-events.json` for structured event lookup, mandatory property checks, and cross-platform scenario mapping.
 
 Official sources:
 

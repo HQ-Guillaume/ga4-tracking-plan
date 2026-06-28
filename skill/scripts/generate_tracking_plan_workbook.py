@@ -72,7 +72,7 @@ def matrix_status_columns() -> list[int]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate a human analytics tracking-plan workbook from the canonical JSON contract.")
-    parser.add_argument("plan", type=Path, help="Path to a JSON tracking plan using tracking_plan_schema.json.")
+    parser.add_argument("plan", type=Path, help="Path to a JSON tracking plan using tracking-plan-schema.json.")
     parser.add_argument("--output", "-o", type=Path, required=True, help="Output XLSX path.")
     return parser.parse_args()
 

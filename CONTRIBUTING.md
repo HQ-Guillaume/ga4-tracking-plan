@@ -21,7 +21,8 @@ Implementation work for GTM, dataLayer, server-side tagging, or browser automati
 
 - Keep changes small and explain the analytics reason for the change.
 - Update `skill/SKILL.md` when the skill behavior changes.
-- Move detailed event libraries, scenario guidance, and maintenance rules into `skill/references/` when they would bloat `SKILL.md`.
+- Preserve the numbered reference structure: `01-skill` defines purpose and acceptance boundaries, `02-commands` defines repeatable checks and generation workflows, and `03-rules` contains the working analyst rules.
+- Move detailed event libraries, scenario guidance, and maintenance rules into `skill/references/03-rules/` when they would bloat `SKILL.md`.
 - Keep examples generic, reusable, and non-sensitive.
 - Do not commit client secrets, API keys, PII, private tracking plans, or proprietary analytics data.
 

@@ -6,10 +6,10 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_REFS = ROOT / "skill" / "references"
-OFFICIAL_JSON = SKILL_REFS / "official_ga4_recommended_events.json"
-LIBRARY_JSON = SKILL_REFS / "ga4_event_scenario_library.json"
-LIBRARY_MD = SKILL_REFS / "ga4_event_scenario_library.md"
+SKILL_REFS = ROOT / "skill" / "references" / "03-rules"
+OFFICIAL_JSON = SKILL_REFS / "official-ga4-recommended-events.json"
+LIBRARY_JSON = SKILL_REFS / "ga4-event-scenario-library.json"
+LIBRARY_MD = SKILL_REFS / "ga4-event-scenario-library.md"
 
 SOURCES = [
     {

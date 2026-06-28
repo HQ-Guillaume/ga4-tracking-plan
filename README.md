@@ -17,7 +17,9 @@ Codex skill package for creating GA4-first tracking plans that are useful in rea
 
 - `skill/` - Codex skill definition and display settings
 - `skill/scripts/` - Runtime scripts bundled with the installed skill
-- `skill/references/` - Event, parameter, privacy, QA, and scenario guidance used by the skill
+- `skill/references/01-skill/` - Purpose, users, questions, inputs, outputs, acceptance criteria, and non-goals
+- `skill/references/02-commands/` - Validation, workbook generation, and historical-plan review commands
+- `skill/references/03-rules/` - Event, parameter, privacy, QA, platform, scenario, and judgement rules
 - `skill/assets/ga4_tracking_plan_template.xlsx` - Default XLSX tracking plan template
 - `scripts/create_event_scenario_library.py` - Regenerates GA4 scenario references from official documentation
 - `scripts/generate_tracking_plan_workbook.py` - Generates an XLSX tracking plan from a structured plan file
@@ -52,27 +54,27 @@ Ecommerce events are handled as a stricter case: they should stay in ecommerce-o
 
 ## Structured Plan Format
 
-Reusable or QA-ready plans should follow `skill/references/tracking_plan_schema.json`. This format keeps the measurement brief, strategy, scalability notes, events, parameters, key events, not-tracked decisions, documentation sources, assumptions, and QA cases in one consistent structure.
+Reusable or QA-ready plans should follow `skill/references/03-rules/tracking-plan-schema.json`. This format keeps the measurement brief, strategy, scalability notes, events, parameters, key events, not-tracked decisions, documentation sources, assumptions, and QA cases in one consistent structure.
 
 Example files are included for reference:
 
-- `skill/references/generic_tracking_plan_fixture.json` - GA4-first example
-- `skill/references/generic_piano_tracking_plan_fixture.json` - Piano-only content-page example
-- `skill/references/generic_piano_ecommerce_tracking_plan_fixture.json` - Piano Sales Insights ecommerce example
+- `skill/references/03-rules/generic-tracking-plan-example.json` - GA4-first example
+- `skill/references/03-rules/generic-piano-tracking-plan-example.json` - Piano-only content-page example
+- `skill/references/03-rules/generic-piano-ecommerce-tracking-plan-example.json` - Piano Sales Insights ecommerce example
 
 These examples use `example.com` and placeholder values only.
 
 To generate an XLSX workbook from a JSON plan:
 
 ```text
-python scripts/generate_tracking_plan_workbook.py skill/references/generic_tracking_plan_fixture.json --output generated_tracking_plan.xlsx
+python scripts/generate_tracking_plan_workbook.py skill/references/03-rules/generic-tracking-plan-example.json --output generated_tracking_plan.xlsx
 ```
 
 To validate a structured plan and export a long-format CSV:
 
 ```text
-python scripts/validate_tracking_plan.py skill/references/generic_tracking_plan_fixture.json
-python scripts/export_tracking_plan_csv.py skill/references/generic_tracking_plan_fixture.json --output generated_tracking_plan.csv
+python scripts/validate_tracking_plan.py skill/references/03-rules/generic-tracking-plan-example.json
+python scripts/export_tracking_plan_csv.py skill/references/03-rules/generic-tracking-plan-example.json --output generated_tracking_plan.csv
 ```
 
 The validator checks the structure, event classifications, GA4 ecommerce rules, parameter value rules, privacy risks, custom-event justification, official documentation coverage, and QA links.
@@ -89,7 +91,8 @@ Generated client plans, screenshots, GTM previews, request exports, and test evi
 
 ## Maintenance Checklist
 
-- Keep `skill/SKILL.md` under 500 lines and move detailed scenario logic into `skill/references/`.
+- Keep `skill/SKILL.md` under 500 lines and move detailed scenario logic into `skill/references/03-rules/`.
+- Preserve the numbered reference structure: `01-skill` for product orientation, `02-commands` for repeatable checks and generation, and `03-rules` for workload rules.
 - Keep references generic, privacy-safe, and platform-separated; do not copy client workbook rows into the skill.
 - Validate the package with `python scripts/validate_package.py`.
 - Treat Universal Analytics examples as migration context only; do not promote UA fields or event models into GA4 plans.
@@ -110,6 +113,9 @@ SKILL.md
 agents/openai.yaml
 assets/ga4_tracking_plan_template.xlsx
 references/
+references/01-skill/
+references/02-commands/
+references/03-rules/
 scripts/
 ```
 
