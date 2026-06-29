@@ -7,6 +7,8 @@ Use this file to decide whether a tracking plan is good enough to deliver.
 A complete tracking plan must show:
 
 - scope, source evidence, assumptions, and open questions;
+- website or journey coverage evidence when the request covers a broad site,
+  multi-journey scope, or greenfield plan;
 - journey-level measurement logic tied to business goals and analysis needs;
 - events grouped so each journey is easy to identify, read, implement, and test;
 - macro conversions, micro conversions, diagnostic events, and context events
@@ -70,3 +72,5 @@ Mark the deliverable incomplete or blocked when:
 - sensitive data is hidden inside generic fields;
 - QA cases are missing for testable events;
 - historical or Universal Analytics schema is copied into a GA4 plan.
+- a whole-site plan has no explicit coverage map, source list, or uncovered
+  journey assumptions.

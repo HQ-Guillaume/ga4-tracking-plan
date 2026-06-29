@@ -151,6 +151,62 @@
       "Use stable transaction and product identifiers so future recette can reconcile confirmation and purchased-product events."
     ]
   },
+  "website_coverage_map": {
+    "site_scope": "selected_journeys",
+    "coverage_summary": "Fixture scope covers a representative Piano Sales Insights add-to-cart and purchase journey.",
+    "sources_checked": [
+      {
+        "source_type": "user_brief",
+        "source_ref": "generic Piano ecommerce fixture brief",
+        "used_for": "Define the ecommerce action sequence and Sales Insights scope.",
+        "confidence": "high"
+      },
+      {
+        "source_type": "page_template",
+        "source_ref": "https://example.com/product/* and https://example.com/checkout/confirmation",
+        "used_for": "Represent product and confirmation templates needed for the selected journey.",
+        "confidence": "medium"
+      }
+    ],
+    "journeys_covered": [
+      {
+        "journey_id": "ecommerce_purchase_journey",
+        "journey_name": "Ecommerce add-to-cart and purchase",
+        "representative_urls": [
+          "https://example.com/product/*",
+          "https://example.com/checkout/confirmation"
+        ],
+        "page_templates": [
+          "product_page",
+          "checkout_confirmation"
+        ],
+        "key_interactions": [
+          "add product to cart",
+          "create cart",
+          "complete checkout",
+          "display purchased products"
+        ],
+        "coverage_status": "covered",
+        "tracking_plan_decision": "included",
+        "evidence": [
+          "Generic Piano ecommerce fixture brief",
+          "Representative product and confirmation templates"
+        ],
+        "notes": "Search, listing, account, support, and refund journeys are outside this fixture."
+      }
+    ],
+    "coverage_gaps": [
+      {
+        "gap": "Intermediate checkout-step pages are represented by the selected Sales Insights events but not individually modeled.",
+        "impact": "Do not infer a full checkout-step recette from this fixture alone.",
+        "recommended_next_step": "Add step-level coverage evidence if the client needs delivery, payment, or error diagnostics."
+      }
+    ],
+    "playwright_recommendation": {
+      "status": "optional",
+      "reason": "Useful for a real ecommerce checkout, but not required for this static Sales Insights fixture."
+    }
+  },
   "events": [
     {
       "event_id": "EVT-PIANO-PRODUCT-ADD-TO-CART",

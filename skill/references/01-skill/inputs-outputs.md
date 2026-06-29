@@ -7,6 +7,9 @@ Use this file to define what the skill needs and what it should produce.
 Required or inferred inputs:
 
 - website URL, page list, sitemap, screenshots, user journey, or written brief;
+- website coverage sources, such as sitemap, robots.txt, navigation, URL
+  inventory, representative page templates, existing client tracking files, or
+  browser/Playwright exploration notes;
 - business goal and analysis needs when known;
 - expected user actions and success signals;
 - existing tracking-plan template, naming convention, or previous GA4/GTM
@@ -31,6 +34,7 @@ Possible outputs:
 - structured JSON plan for validation and future automation;
 - long-format CSV for review, diffing, or QA ingestion;
 - measurement brief and assumptions;
+- website coverage map for broad website or multi-journey scope;
 - measurement strategy and scalability notes;
 - journey-grouped Event Matrix;
 - Parameter Reference with value rules and examples;

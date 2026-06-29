@@ -1027,6 +1027,90 @@ def check_measurement_strategy(plan: dict[str, Any], issues: list[Issue]) -> Non
             )
 
 
+def check_website_coverage_map(plan: dict[str, Any], issues: list[Issue]) -> None:
+    coverage = plan.get("website_coverage_map", {})
+    if not isinstance(coverage, dict):
+        return
+
+    journey_ids = {
+        str(brief.get("journey_id", ""))
+        for brief in plan.get("measurement_brief", [])
+        if isinstance(brief, dict) and brief.get("journey_id")
+    }
+    source_types = {
+        str(source.get("source_type", ""))
+        for source in coverage.get("sources_checked", [])
+        if isinstance(source, dict)
+    }
+    structural_sources = {
+        "sitemap",
+        "robots_txt",
+        "navigation",
+        "url_list",
+        "page_template",
+        "playwright_crawl",
+        "browser_exploration",
+        "existing_tracking_plan",
+    }
+
+    covered_journey_ids: set[str] = set()
+    for index, item in enumerate(coverage.get("journeys_covered", []) if isinstance(coverage.get("journeys_covered", []), list) else []):
+        if not isinstance(item, dict):
+            continue
+        journey_id = str(item.get("journey_id", ""))
+        if journey_id:
+            covered_journey_ids.add(journey_id)
+            if journey_id not in journey_ids:
+                add_issue(
+                    issues,
+                    "error",
+                    "COVERAGE_JOURNEY_UNKNOWN",
+                    f"$.website_coverage_map.journeys_covered[{index}].journey_id",
+                    f"Coverage map references unknown journey_id '{journey_id}'.",
+                )
+        if item.get("tracking_plan_decision") == "included":
+            if item.get("coverage_status") in {"blocked", "out_of_scope"}:
+                add_issue(
+                    issues,
+                    "error",
+                    "COVERAGE_INCLUDED_BUT_NOT_COVERED",
+                    f"$.website_coverage_map.journeys_covered[{index}].coverage_status",
+                    "Included journeys cannot be marked blocked or out_of_scope.",
+                )
+            for field in ["representative_urls", "page_templates", "key_interactions", "evidence"]:
+                values = item.get(field, [])
+                if not isinstance(values, list) or not any(str(value).strip() for value in values):
+                    add_issue(
+                        issues,
+                        "error",
+                        "COVERAGE_INCLUDED_EVIDENCE_MISSING",
+                        f"$.website_coverage_map.journeys_covered[{index}].{field}",
+                        f"Included journeys need non-empty {field} so analysts and future QA can understand coverage.",
+                    )
+
+    for brief_index, brief in enumerate(plan.get("measurement_brief", []) if isinstance(plan.get("measurement_brief", []), list) else []):
+        if not isinstance(brief, dict):
+            continue
+        journey_id = str(brief.get("journey_id", ""))
+        if journey_id and journey_id not in covered_journey_ids:
+            add_issue(
+                issues,
+                "error",
+                "MEASUREMENT_JOURNEY_NOT_IN_COVERAGE_MAP",
+                f"$.measurement_brief[{brief_index}].journey_id",
+                f"Journey '{journey_id}' must have a matching website_coverage_map.journeys_covered entry.",
+            )
+
+    if coverage.get("site_scope") == "whole_site" and not (source_types & structural_sources):
+        add_issue(
+            issues,
+            "error",
+            "WHOLE_SITE_COVERAGE_SOURCE_MISSING",
+            "$.website_coverage_map.sources_checked",
+            "Whole-site plans need at least one structural source such as sitemap, navigation, URL list, page templates, browser exploration, Playwright, or existing tracking files.",
+        )
+
+
 def check_not_tracked_decisions(plan: dict[str, Any], issues: list[Issue]) -> None:
     not_tracked = plan.get("not_tracked", [])
     if isinstance(not_tracked, list) and not not_tracked:
@@ -1314,6 +1398,7 @@ def validate_plan_data(plan: dict[str, Any], schema_path: Path | None = None) ->
     check_duplicates([case.get("qa_id", "") for case in qa_cases if isinstance(case, dict)], "qa_id", "$.qa_cases", issues)
     check_measurement_alignment(plan, issues)
     check_measurement_strategy(plan, issues)
+    check_website_coverage_map(plan, issues)
     check_not_tracked_decisions(plan, issues)
     source_urls = [
         str(source.get("url", "")).lower()

@@ -34,6 +34,7 @@ REQUIRED_REFERENCE_FILES = [
     RULES / "mainstream-analytics-tool-policy.md",
     RULES / "business-scenario-analysis.md",
     RULES / "website-archetype-decision-matrix.md",
+    RULES / "website-coverage-mapping.md",
     RULES / "corpus-learning-policy.md",
     RULES / "custom-event-decision-matrix.md",
     RULES / "parameter-proposition-library.json",
@@ -227,6 +228,7 @@ def check_skill_resource_links() -> None:
         "references/03-rules/mainstream-analytics-tool-policy.md",
         "references/03-rules/business-scenario-analysis.md",
         "references/03-rules/website-archetype-decision-matrix.md",
+        "references/03-rules/website-coverage-mapping.md",
         "references/03-rules/corpus-learning-policy.md",
         "references/03-rules/custom-event-decision-matrix.md",
         "references/03-rules/parameter-proposition-library.json",
@@ -375,9 +377,14 @@ def check_mainstream_analytics_references() -> None:
 
     schema = load_json(RULES / "tracking-plan-schema.json")
     schema_text = json.dumps(schema)
-    for expected in ["official_match", "primary_platform", "measurementRole", "measurement_strategy", "business_event_family", "page_or_component", "data_dependencies", "reporting_purpose", "platform_mappings", "implementation_payloads", "piano_analytics", "piano_custom_property", "piano_data_model_property"]:
+    for expected in ["official_match", "primary_platform", "measurementRole", "measurement_strategy", "website_coverage_map", "business_event_family", "page_or_component", "data_dependencies", "reporting_purpose", "platform_mappings", "implementation_payloads", "piano_analytics", "piano_custom_property", "piano_data_model_property"]:
         if expected not in schema_text:
             fail(f"Tracking plan schema is missing cross-platform support for {expected}")
+
+    coverage_text = read_text(RULES / "website-coverage-mapping.md")
+    for expected in ["sitemap", "robots.txt", "navigation", "Playwright", "website_coverage_map", "Coverage Gate"]:
+        if expected not in coverage_text:
+            fail(f"Website coverage mapping reference is missing {expected}")
 
 
 def check_tracking_plan_contract() -> None:
@@ -684,6 +691,11 @@ def check_tracking_plan_negative_lints() -> None:
             candidate["events"][0]["journey_id"] = "missing_journey"
 
         expect_validator_error(fixture, temp_dir, "unknown_event_journey", unknown_event_journey, "EVENT_JOURNEY_UNKNOWN")
+
+        def unknown_coverage_journey(candidate: dict) -> None:
+            candidate["website_coverage_map"]["journeys_covered"][0]["journey_id"] = "missing_journey"
+
+        expect_validator_error(fixture, temp_dir, "unknown_coverage_journey", unknown_coverage_journey, "COVERAGE_JOURNEY_UNKNOWN")
 
         def empty_declared_journey(candidate: dict) -> None:
             candidate["measurement_brief"].append(

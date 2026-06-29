@@ -6,7 +6,7 @@ Codex skill package for creating GA4-first tracking plans that are useful in rea
 
 ## What It Helps With
 
-- Understand the pages, journeys, business goals, expected actions, and analysis needs before listing events.
+- Understand the pages, journeys, coverage sources, business goals, expected actions, and analysis needs before listing events.
 - Prefer official GA4 automatic, enhanced-measurement, recommended, and ecommerce events when they fit.
 - Design custom events only when they answer a clear business or diagnostic question.
 - Keep ecommerce events separate and aligned with the official GA4 ecommerce format.
@@ -30,7 +30,7 @@ Codex skill package for creating GA4-first tracking plans that are useful in rea
 
 ## Skill Focus
 
-The skill starts from business context, analysis needs, concerned pages or journeys, and reusable measurement decisions. GA4 remains the default and strictest supported output path. Piano Analytics is supported through dedicated platform guidance when requested.
+The skill starts from business context, analysis needs, concerned pages or journeys, website coverage evidence, and reusable measurement decisions. GA4 remains the default and strictest supported output path. Piano Analytics is supported through dedicated platform guidance when requested.
 
 XLSX is the primary delivery format. The workbook should stay readable: lean overview, clear GTM protocol, practical parameter reference, grouped event matrix, screenshot register, and QA cases.
 
@@ -39,6 +39,7 @@ The skill is intentionally scoped to tracking-plan creation and review. GTM impl
 The expected behavior is close to a real web analyst:
 
 - understand the business model, journey role, macro conversions, micro conversions, and diagnostic needs before proposing events
+- map whole-site or broad journey coverage from sitemap, navigation, representative templates, existing client files, and browser or Playwright exploration when needed
 - use official GA4 events and parameters when their meaning fits the action
 - justify every custom event with its analysis need, official alternatives, reusable parameters, privacy checks, and QA expectations
 - keep the visible workbook focused on what humans need to build, review, and test the plan
@@ -46,7 +47,7 @@ The expected behavior is close to a real web analyst:
 
 The included GA4 event scenario library helps map common website scenarios to automatic, enhanced-measurement, recommended, ecommerce, and typical custom events with expected parameters and dataLayer patterns.
 
-The package also includes scenario guidance for ecommerce, lead generation, search/listing, account/support/content, SPA routing, business-model analysis, website archetype inference, data quality/privacy, official-first review, example comparison, ecommerce parameter policy, Piano Analytics mappings, mainstream analytics tool policy, and QA readiness.
+The package also includes scenario guidance for ecommerce, lead generation, search/listing, account/support/content, SPA routing, website coverage mapping, business-model analysis, website archetype inference, data quality/privacy, official-first review, example comparison, ecommerce parameter policy, Piano Analytics mappings, mainstream analytics tool policy, and QA readiness.
 
 Tracking plans generated with this skill consolidate repeated same-name events whenever the same trigger logic and parameter structure can cover multiple components. Controlled analytics values should use lowercase ASCII `snake_case`, with accents removed, so French labels such as `Nouveautes` become `nouveautes`.
 
@@ -54,7 +55,7 @@ Ecommerce events are handled as a stricter case: they should stay in ecommerce-o
 
 ## Structured Plan Format
 
-Reusable or QA-ready plans should follow `skill/references/03-rules/tracking-plan-schema.json`. This format keeps the measurement brief, strategy, scalability notes, events, parameters, key events, not-tracked decisions, documentation sources, assumptions, and QA cases in one consistent structure.
+Reusable or QA-ready plans should follow `skill/references/03-rules/tracking-plan-schema.json`. This format keeps the website coverage map, measurement brief, strategy, scalability notes, events, parameters, key events, not-tracked decisions, documentation sources, assumptions, and QA cases in one consistent structure.
 
 Example files are included for reference:
 

@@ -192,6 +192,61 @@
       "Use controlled lowercase ASCII snake_case values for component, content, and CTA parameters so future French labels remain reportable."
     ]
   },
+  "website_coverage_map": {
+    "site_scope": "selected_pages",
+    "coverage_summary": "Fixture scope covers one representative ecommerce homepage and its primary discovery interactions only.",
+    "sources_checked": [
+      {
+        "source_type": "user_brief",
+        "source_ref": "generic fixture brief",
+        "used_for": "Define the homepage scope, available metadata, and expected user actions.",
+        "confidence": "high"
+      },
+      {
+        "source_type": "page_template",
+        "source_ref": "https://example.com/",
+        "used_for": "Represent the homepage template and visible discovery components.",
+        "confidence": "medium"
+      }
+    ],
+    "journeys_covered": [
+      {
+        "journey_id": "homepage_discovery",
+        "journey_name": "Homepage discovery",
+        "representative_urls": [
+          "https://example.com/"
+        ],
+        "page_templates": [
+          "homepage"
+        ],
+        "key_interactions": [
+          "homepage page view",
+          "promotion impression and click",
+          "site search",
+          "content or navigation selection",
+          "account access intent"
+        ],
+        "coverage_status": "covered",
+        "tracking_plan_decision": "included",
+        "evidence": [
+          "Generic fixture brief",
+          "Representative homepage template"
+        ],
+        "notes": "Cart, checkout, and product-listing journeys are intentionally outside this fixture."
+      }
+    ],
+    "coverage_gaps": [
+      {
+        "gap": "Full ecommerce catalog, cart, checkout, purchase, and refund journeys are not in fixture scope.",
+        "impact": "Do not reuse this fixture alone as a whole-site ecommerce plan.",
+        "recommended_next_step": "Add separate journeys and coverage evidence for PLP, PDP, cart, checkout, confirmation, and refund flows."
+      }
+    ],
+    "playwright_recommendation": {
+      "status": "not_needed",
+      "reason": "The fixture validates a selected homepage template, not a dynamic whole-site crawl."
+    }
+  },
   "events": [
     {
       "event_id": "EVT-HOME-PAGE-VIEW",

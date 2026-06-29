@@ -12,6 +12,7 @@
     "document",
     "measurement_brief",
     "measurement_strategy",
+    "website_coverage_map",
     "events",
     "parameters",
     "custom_definitions",
@@ -49,6 +50,9 @@
     },
     "measurement_strategy": {
       "$ref": "#/$defs/measurementStrategy"
+    },
+    "website_coverage_map": {
+      "$ref": "#/$defs/websiteCoverageMap"
     },
     "events": {
       "type": "array",
@@ -269,6 +273,200 @@
         },
         "scalability_notes": {
           "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "websiteCoverageMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "site_scope",
+        "coverage_summary",
+        "sources_checked",
+        "journeys_covered",
+        "coverage_gaps",
+        "playwright_recommendation"
+      ],
+      "properties": {
+        "site_scope": {
+          "enum": [
+            "whole_site",
+            "selected_journeys",
+            "selected_pages",
+            "single_journey",
+            "template_only",
+            "unknown"
+          ]
+        },
+        "coverage_summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sources_checked": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/coverageSource"
+          }
+        },
+        "journeys_covered": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/journeyCoverage"
+          }
+        },
+        "coverage_gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/coverageGap"
+          }
+        },
+        "playwright_recommendation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "required",
+                "recommended",
+                "optional",
+                "not_needed",
+                "blocked"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "coverageSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "source_ref",
+        "used_for",
+        "confidence"
+      ],
+      "properties": {
+        "source_type": {
+          "enum": [
+            "sitemap",
+            "robots_txt",
+            "navigation",
+            "url_list",
+            "page_template",
+            "playwright_crawl",
+            "browser_exploration",
+            "existing_tracking_plan",
+            "analytics_export",
+            "search_console_export",
+            "screenshots",
+            "user_brief",
+            "other"
+          ]
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "used_for": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        }
+      }
+    },
+    "journeyCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "journey_id",
+        "journey_name",
+        "representative_urls",
+        "page_templates",
+        "key_interactions",
+        "coverage_status",
+        "tracking_plan_decision",
+        "evidence",
+        "notes"
+      ],
+      "properties": {
+        "journey_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "journey_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "representative_urls": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "page_templates": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "key_interactions": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "coverage_status": {
+          "enum": [
+            "covered",
+            "partial",
+            "assumed",
+            "out_of_scope",
+            "blocked"
+          ]
+        },
+        "tracking_plan_decision": {
+          "enum": [
+            "included",
+            "excluded",
+            "needs_discovery"
+          ]
+        },
+        "evidence": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "coverageGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gap",
+        "impact",
+        "recommended_next_step"
+      ],
+      "properties": {
+        "gap": {
+          "type": "string",
+          "minLength": 1
+        },
+        "impact": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recommended_next_step": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },

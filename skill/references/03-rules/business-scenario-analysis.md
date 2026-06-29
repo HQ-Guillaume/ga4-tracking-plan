@@ -15,14 +15,17 @@ Use this reference when the user gives a website, page, user journey, or limited
 ## Analyst Reasoning Loop
 
 1. Identify the business model and page role from visible context.
-2. Translate visible actions into business questions before choosing events.
-3. Separate macro conversions, micro conversions, and diagnostic signals.
-4. Prefer platform-native events where semantics fit.
-5. Use `custom-event-decision-matrix.md` before accepting custom events.
-6. Use `parameter-proposition-library.json` to choose reusable parameters and value rules, then verify official parameters in current platform docs.
-7. Consolidate repeated interactions into one reusable event with controlled values.
-8. Design event families, parameter names, and QA identifiers so the plan can scale to future pages, markets, components, and journey variants.
-9. Reject or deprioritize low-signal tracking that creates maintenance cost without analysis value.
+2. For broad scope, map website coverage before choosing events: sitemap,
+   robots.txt, navigation, representative templates, existing client files, and
+   browser or Playwright exploration when dynamic journeys matter.
+3. Translate visible actions into business questions before choosing events.
+4. Separate macro conversions, micro conversions, and diagnostic signals.
+5. Prefer platform-native events where semantics fit.
+6. Use `custom-event-decision-matrix.md` before accepting custom events.
+7. Use `parameter-proposition-library.json` to choose reusable parameters and value rules, then verify official parameters in current platform docs.
+8. Consolidate repeated interactions into one reusable event with controlled values.
+9. Design event families, parameter names, and QA identifiers so the plan can scale to future pages, markets, components, and journey variants.
+10. Reject or deprioritize low-signal tracking that creates maintenance cost without analysis value.
 
 When information is missing, continue with assumptions instead of stalling. Flag assumptions in the plan.
 

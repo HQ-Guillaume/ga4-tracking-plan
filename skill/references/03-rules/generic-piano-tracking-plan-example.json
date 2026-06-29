@@ -118,6 +118,52 @@
       "Reuse page chapter and navigation taxonomies across content pages so reports remain comparable."
     ]
   },
+  "website_coverage_map": {
+    "site_scope": "single_journey",
+    "coverage_summary": "Fixture scope covers one representative Piano content page engagement journey.",
+    "sources_checked": [
+      {
+        "source_type": "user_brief",
+        "source_ref": "generic Piano content fixture brief",
+        "used_for": "Define the content page scope and expected page display plus navigation click.",
+        "confidence": "high"
+      },
+      {
+        "source_type": "page_template",
+        "source_ref": "https://example.com/article",
+        "used_for": "Represent the content page template and internal navigation component.",
+        "confidence": "medium"
+      }
+    ],
+    "journeys_covered": [
+      {
+        "journey_id": "content_page_engagement",
+        "journey_name": "Content page engagement",
+        "representative_urls": [
+          "https://example.com/article"
+        ],
+        "page_templates": [
+          "content_page"
+        ],
+        "key_interactions": [
+          "content page display",
+          "internal navigation click"
+        ],
+        "coverage_status": "covered",
+        "tracking_plan_decision": "included",
+        "evidence": [
+          "Generic Piano content fixture brief",
+          "Representative content page template"
+        ],
+        "notes": "Subscription, search, media, and download journeys are outside this fixture."
+      }
+    ],
+    "coverage_gaps": [],
+    "playwright_recommendation": {
+      "status": "not_needed",
+      "reason": "The fixture validates a single content page journey with no dynamic discovery requirement."
+    }
+  },
   "events": [
     {
       "event_id": "EVT-PIANO-PAGE-DISPLAY",

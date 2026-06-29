@@ -4,12 +4,15 @@ Use this reference when the user gives a website, page, homepage, or mixed user 
 
 ## Reasoning Order
 
-1. Classify the business model and page role from visible signals.
-2. Identify macro conversions, micro conversions, and diagnostic questions.
-3. Decide whether the page contains sellable products, lead-capture journeys, authenticated journeys, support intent, publisher/content consumption, media playback, booking/reservation, locator usage, or hybrid combinations.
-4. Select official GA4 and Piano events before custom events.
-5. Add custom events only for business-specific intent, funnel friction, or diagnostics not covered by official events.
-6. List events intentionally not tracked when the interaction is low-signal or duplicate.
+1. Map website or journey coverage when the requested scope is broader than a
+   single page, using sitemap, navigation, representative templates, existing
+   client files, and browser/Playwright exploration when needed.
+2. Classify the business model and page role from visible signals.
+3. Identify macro conversions, micro conversions, and diagnostic questions.
+4. Decide whether the page contains sellable products, lead-capture journeys, authenticated journeys, support intent, publisher/content consumption, media playback, booking/reservation, locator usage, or hybrid combinations.
+5. Select official GA4 and Piano events before custom events.
+6. Add custom events only for business-specific intent, funnel friction, or diagnostics not covered by official events.
+7. List events intentionally not tracked when the interaction is low-signal or duplicate.
 
 Do not infer a full ecommerce checkout only because a page has product-like cards. Use ecommerce checkout and purchase events only when cart, checkout, transaction, refund, or product revenue data is in scope.
 
