@@ -8,12 +8,15 @@ Use this file when a tracking plan should be delivered as XLSX.
 2. Validate the JSON with `scripts/validate_tracking_plan.py`.
 3. Draft the Event Matrix and generate the Screenshot Register from the event
    rows before final workbook generation.
-4. Decide screenshot evidence needs:
+4. Decide screenshot evidence needs for every event:
    - use clean screenshots for passive render/state events;
    - use rectangle-only red callouts for click, form submit, CTA, filter, menu,
      or other interaction targets;
-   - mark backend, gated, unavailable, duplicated, or future-recette-only
-     evidence clearly instead of forcing a screenshot.
+   - use `skip_allowed` for login, credential-gated, account, checkout,
+     payment, or otherwise restricted steps when approved credentials or a safe
+     test environment are unavailable;
+   - mark backend, unavailable, duplicated, or future-recette-only evidence
+     clearly instead of forcing a screenshot.
 5. Capture and embed representative screenshot previews when useful. One
    screenshot can support several events, and not every event needs a
    screenshot.
@@ -52,10 +55,10 @@ Before delivery, confirm:
 - the visible Event Matrix row is called `event`; reserve `event_name` wording
   for GA4 event names or GA4 payload settings;
 - Screenshot Register captures page/component evidence requirements and
-  automation cues for later recette; it should not expose local file-path/link
+  automation cues for every event; it should not expose local file-path/link
   columns or become a dense QA execution sheet;
 - Screenshot Register status should use `capture_required`, `captured`,
-  `shared_evidence`, `not_needed`, or `blocked`;
+  `shared_evidence`, `skip_allowed`, `not_needed`, or `blocked`;
 - screenshot previews for click, form submit, CTA, filter, menu, or other
   interaction events should highlight the target element with a red rectangle
   or equivalent callout; prefer rectangle-only annotations in workbook

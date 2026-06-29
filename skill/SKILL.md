@@ -118,7 +118,7 @@ Load only the files required by scope:
 | --- | --- |
 | Product purpose, users, questions, inputs, outputs, acceptance criteria, non-goals | `references/01-skill/purpose.md`, `references/01-skill/users-and-questions.md`, `references/01-skill/inputs-outputs.md`, `references/01-skill/acceptance-criteria.md`, `references/01-skill/non-goals.md` |
 | Validation, workbook generation, and corpus review commands | `references/02-commands/validation-commands.md`, `references/02-commands/workbook-generation.md`, `references/02-commands/corpus-review-workflow.md` |
-| Business model, page role, journey logic, and custom-event judgement | `references/03-rules/business-scenario-analysis.md`, `references/03-rules/website-archetype-decision-matrix.md`, `references/03-rules/custom-event-decision-matrix.md` |
+| Business model, page role, journey logic, measurement coherence, and custom-event judgement | `references/03-rules/business-scenario-analysis.md`, `references/03-rules/website-archetype-decision-matrix.md`, `references/03-rules/measurement-coherence-review.md`, `references/03-rules/custom-event-decision-matrix.md` |
 | Whole-site or multi-journey URL and journey coverage | `references/03-rules/website-coverage-mapping.md` |
 | GA4 event scenario selection and official recommended-event lookup | `references/03-rules/ga4-event-scenario-library.md`, `references/03-rules/ga4-event-scenario-library.json`, `references/03-rules/official-ga4-recommended-events.json` |
 | Ecommerce journeys and official parameter scope | `references/03-rules/scenario-ecommerce.md`, `references/03-rules/ga4-ecommerce-parameter-policy.md` |
@@ -135,6 +135,8 @@ Use scripts as deterministic gates or transformers:
 `scripts/export_tracking_plan_csv.py` for long-format CSV,
 `scripts/discover_site_journeys.py` for first-pass website URL and journey
 discovery,
+`scripts/discover_site_journeys_playwright.py` for optional rendered-DOM
+coverage when dynamic menus, forms, filters, or SPA routes matter,
 `scripts/annotate_screenshot.py` for rectangle-only interaction screenshot
 callouts,
 `scripts/analyze_tracking_plan_corpus.ps1` for privacy-safe historical-plan
@@ -157,9 +159,11 @@ helper used by the validator and exporters.
 4. **Load the right references**. Start with the `01-skill` files when product
    boundaries are unclear. Use `02-commands` for validation or generation. Use
    only the `03-rules` files that match the scenario and platform.
-5. **Define the measurement strategy**. Identify business archetype, page roles,
-   selected event families, excluded event families, custom-event acceptance,
-   and scalability notes.
+5. **Define and review the measurement strategy**. Identify business
+   archetype, page roles, selected event families, excluded event families,
+   custom-event acceptance, and scalability notes. Apply
+   `references/03-rules/measurement-coherence-review.md` so events and
+   parameters work together around business goals and analysis needs.
 6. **Choose official-first events**. Prefer GA4 native/recommended/ecommerce
    events or Piano standard families when semantics fit. Record
    `official_verification`; explain custom events.
@@ -173,14 +177,15 @@ helper used by the validator and exporters.
    needs. For reusable plans, follow
    `references/03-rules/tracking-plan-schema.json`.
 9. **Prepare screenshot evidence**. Generate the Screenshot Register from the
-   event draft before final workbook generation. Link rows to events, routes,
-   components, capture objectives, and automation cues. Do not force a strict
-   one-screenshot-per-event rule: one screenshot may support several events,
-   some backend/gated events may have no useful screenshot, and some
-   interaction events may need later before/after evidence in the recette
-   phase. Capture representative screenshots when useful; keep passive
-   render/state evidence unannotated and use rectangle-only callouts for click,
-   form, filter, menu, CTA, or other interaction targets.
+   event draft before final workbook generation. Every event must have a row:
+   use `capture_required`, `captured`, `shared_evidence`, `skip_allowed`,
+   `not_needed`, or `blocked`. Do not force a strict one-screenshot-per-event
+   rule: one screenshot may support several events. Use `skip_allowed` for
+   login, credential-gated, account, checkout, or payment steps that cannot be
+   accessed safely without approved credentials or a test environment. Capture
+   representative screenshots for accessible events; keep passive render/state
+   evidence unannotated and use rectangle-only callouts for click, form,
+   filter, menu, CTA, or other interaction targets.
 10. **Generate outputs when needed**. Use the workbook generator for XLSX and the
    CSV exporter for long-format review. Embed selected screenshot previews in
    the Screenshot Register when captured evidence is available.
@@ -203,7 +208,9 @@ sheet structure stable unless the user asks for a different workbook:
 - `03 Event Matrix`: main tracking plan, grouped by journey and compatible
   event family;
 - `04 Screenshot Register`: capture requirements, visual evidence, and
-  automation cues for later recette; do not use it as a local file-path index;
+  automation cues for later recette; include every event with capture,
+  shared-evidence, skip, not-needed, or blocked status; do not use it as a
+  local file-path index;
   annotate screenshots with a red target rectangle or equivalent callout only
   for click, form submit, CTA, filter, menu, or other interaction events; keep
   passive render/state evidence such as `page_view`, `view_item_list`,

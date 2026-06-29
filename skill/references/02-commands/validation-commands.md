@@ -7,6 +7,9 @@ Use this file to decide which local checks to run and when.
 Run before committing or releasing the reusable skill package:
 
 ```powershell
+ruff check .
+python -m compileall -q scripts skill/scripts tests
+python -m unittest discover -s tests
 python scripts/validate_package.py
 git diff --check
 git status --short
@@ -42,6 +45,19 @@ The output is a privacy-safe discovery aid. It does not replace Playwright or
 manual browser exploration for dynamic checkout, filters, account, forms,
 modals, or SPA routes.
 
+Use rendered-DOM discovery when dynamic navigation, filters, forms, or SPA
+routes materially affect whole-site coverage:
+
+```powershell
+python -m pip install playwright
+python -m playwright install chromium
+python scripts/discover_site_journeys_playwright.py https://www.example.com/ --output path\to\site_discovery_rendered.json
+```
+
+The Playwright helper samples rendered pages without submitting forms, logging
+in, placing orders, or mutating live state. Mark credential-gated journeys as
+skipped or blocked unless approved test access is available.
+
 ## Workbook And CSV Checks
 
 Run when generating reviewer-facing files:
@@ -53,3 +69,14 @@ python scripts/export_tracking_plan_csv.py path\to\tracking-plan.json --output p
 
 Generated files should remain outside the reusable skill package unless they
 are deliberate, generic examples.
+
+## Release Package
+
+Run before attaching release assets manually:
+
+```powershell
+python scripts/create_release_package.py --version vX.Y.Z
+```
+
+The generated zip belongs in the ignored `release/` folder and should contain
+only public reusable package files.

@@ -56,7 +56,19 @@ CENTER = Alignment(wrap_text=True, vertical="center", horizontal="center")
 
 EVENT_SLOT_COUNT = 4
 STATUS_OPTIONS = "OK,KO,Cannot test"
-SCREENSHOT_STATUS_OPTIONS = "capture_required,captured,shared_evidence,not_needed,blocked"
+SCREENSHOT_STATUS_OPTIONS = "capture_required,captured,shared_evidence,skip_allowed,not_needed,blocked"
+GATED_SCREENSHOT_TERMS = {
+    "account",
+    "authentication",
+    "checkout",
+    "connexion",
+    "credential",
+    "login",
+    "logged",
+    "paiement",
+    "password",
+    "payment",
+}
 
 
 def matrix_max_col() -> int:
@@ -214,6 +226,14 @@ def compact_json(value: Any) -> str:
     if isinstance(value, str):
         return value
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+def event_requires_gated_access(event: dict[str, Any]) -> bool:
+    text = " ".join(
+        str(event.get(key, ""))
+        for key in ["page_type", "page_or_component", "trigger", "page_url_pattern", "implementation_notes"]
+    ).lower()
+    return any(term in text for term in GATED_SCREENSHOT_TERMS)
 
 
 def event_family(event: dict[str, Any]) -> str:
@@ -574,13 +594,25 @@ def build_screenshot_register(wb: Workbook, plan: dict[str, Any]) -> None:
     def automation_cue(event: dict[str, Any]) -> str:
         classification = event.get("classification", "")
         role = event.get("measurement_role", "")
+        if event_requires_gated_access(event):
+            return "Skip or capture only with approved test access; do not use personal credentials."
         if role == "transaction":
             return "Use a controlled test order; validate payload in the future QA skill."
         if classification == "recommended_ecommerce":
             return "Open the route and reproduce the ecommerce state before validating GA4 payload."
-        if classification in {"custom_event", "interaction"}:
+        if classification == "custom":
             return "Open the route, perform the trigger, and capture the component state."
         return "Open the route and capture the rendered page state."
+
+    def screenshot_status(event: dict[str, Any]) -> str:
+        if event_requires_gated_access(event):
+            return "skip_allowed"
+        return "capture_required"
+
+    def screenshot_notes(event: dict[str, Any]) -> str:
+        if event_requires_gated_access(event):
+            return "Skip is allowed when approved credentials or a safe test environment are unavailable."
+        return "Capture during coverage or later QA when the journey is accessible."
 
     for event in plan["events"]:
         ws.append([
@@ -590,8 +622,8 @@ def build_screenshot_register(wb: Workbook, plan: dict[str, Any]) -> None:
             event["page_url_pattern"],
             f"{event['page_or_component']} - {event['trigger']}",
             automation_cue(event),
-            "capture_required",
-            "Capture during coverage or later QA when the journey is accessible.",
+            screenshot_status(event),
+            screenshot_notes(event),
         ])
     for row in range(4, ws.max_row + 1):
         ws.row_dimensions[row].height = 56
@@ -600,6 +632,7 @@ def build_screenshot_register(wb: Workbook, plan: dict[str, Any]) -> None:
     status_dv.add(f"G4:G{ws.max_row + 200}")
     ws.conditional_formatting.add(f"G4:G{ws.max_row + 200}", CellIsRule(operator="equal", formula=['"captured"'], fill=PatternFill("solid", fgColor=GREEN)))
     ws.conditional_formatting.add(f"G4:G{ws.max_row + 200}", CellIsRule(operator="equal", formula=['"shared_evidence"'], fill=PatternFill("solid", fgColor=TEAL_LIGHT)))
+    ws.conditional_formatting.add(f"G4:G{ws.max_row + 200}", CellIsRule(operator="equal", formula=['"skip_allowed"'], fill=PatternFill("solid", fgColor=NOT_AVAILABLE_FILL)))
     ws.conditional_formatting.add(f"G4:G{ws.max_row + 200}", CellIsRule(operator="equal", formula=['"capture_required"'], fill=PatternFill("solid", fgColor=YELLOW)))
     ws.conditional_formatting.add(f"G4:G{ws.max_row + 200}", CellIsRule(operator="equal", formula=['"blocked"'], fill=PatternFill("solid", fgColor=RED)))
     ws.conditional_formatting.add(f"G4:G{ws.max_row + 200}", CellIsRule(operator="equal", formula=['"not_needed"'], fill=PatternFill("solid", fgColor=GRAY)))

@@ -28,7 +28,9 @@ Codex skill package for creating GA4-first tracking plans that are useful in rea
 - `scripts/validate_tracking_plan.py` - Checks a structured plan file before workbook generation
 - `scripts/export_tracking_plan_csv.py` - Exports a long-format CSV for review or comparison
 - `scripts/discover_site_journeys.py` - Creates a privacy-safe first-pass website discovery JSON from robots, sitemap, static links, forms, and inferred journeys
+- `scripts/discover_site_journeys_playwright.py` - Optional rendered-DOM discovery for dynamic navigation, filters, forms, and SPA routes
 - `scripts/annotate_screenshot.py` - Adds rectangle-only red callouts to screenshots for click, form, CTA, filter, menu, or other interaction evidence
+- `scripts/create_release_package.py` - Builds the public release zip for the reusable skill package
 - `scripts/analyze_tracking_plan_corpus.ps1` - Creates a privacy-safe summary of historical tracking-plan files on Windows
 - `scripts/validate_package.py` - Runs package checks before publishing changes
 
@@ -44,7 +46,7 @@ The expected behavior is close to a real web analyst:
 
 - understand the business model, journey role, macro conversions, micro conversions, and diagnostic needs before proposing events
 - map whole-site or broad journey coverage from sitemap, navigation, representative templates, existing client files, and browser or Playwright exploration when needed
-- generate Screenshot Register rows from the event draft, then capture selective evidence previews before final workbook delivery when useful
+- generate Screenshot Register rows from the event draft for every event, then capture evidence, share evidence, or mark skipped/not-needed evidence before final workbook delivery
 - preserve client templates when the mode requires it, while still challenging weak existing events
 - use official GA4 events and parameters when their meaning fits the action
 - justify every custom event with its analysis need, official alternatives, reusable parameters, privacy checks, and QA expectations
@@ -56,6 +58,8 @@ The included GA4 event scenario library helps map common website scenarios to au
 The package also includes scenario guidance for ecommerce, lead generation, search/listing, account/support/content, SPA routing, website coverage mapping, business-model analysis, website archetype inference, data quality/privacy, official-first review, example comparison, ecommerce parameter policy, Piano Analytics mappings, mainstream analytics tool policy, and QA readiness.
 
 Tracking plans generated with this skill consolidate repeated same-name events whenever the same trigger logic and parameter structure can cover multiple components. Controlled analytics values should use lowercase ASCII `snake_case`, with accents removed, so French labels such as `Nouveautes` become `nouveautes`.
+
+Every generated workbook includes a Screenshot Register row for each event. Accessible events should be marked for capture or linked to shared evidence. Login, credential-gated, account, checkout, payment, or otherwise restricted steps can use `skip_allowed` when approved credentials or a safe test environment are unavailable.
 
 Ecommerce events are handled as a stricter case: they should stay in ecommerce-only blocks and use the official GA4 ecommerce parameter names, including required item parameters from Google documentation. GTM/dataLayer wrapper paths such as `ecommerce.items` are implementation mapping details, not replacements for GA4 parameters like `items` and `items[].item_id`.
 
@@ -90,6 +94,14 @@ To create a first-pass website discovery JSON:
 python scripts/discover_site_journeys.py https://www.example.com/ --output site_discovery.json
 ```
 
+For rendered-DOM discovery on dynamic websites, install Playwright only when needed:
+
+```text
+python -m pip install playwright
+python -m playwright install chromium
+python scripts/discover_site_journeys_playwright.py https://www.example.com/ --output site_discovery_rendered.json
+```
+
 To annotate an interaction screenshot before embedding it in a workbook:
 
 ```text
@@ -113,7 +125,7 @@ Generated client plans, screenshots, GTM previews, request exports, and test evi
 - Keep `skill/SKILL.md` under 500 lines and move detailed scenario logic into `skill/references/03-rules/`.
 - Preserve the numbered reference structure: `01-skill` for product orientation, `02-commands` for repeatable checks and generation, and `03-rules` for workload rules.
 - Keep references generic, privacy-safe, and platform-separated; do not copy client workbook rows into the skill.
-- Validate the package with `python scripts/validate_package.py`.
+- Validate the package with `ruff check .`, `python -m compileall -q scripts skill/scripts tests`, `python -m unittest discover -s tests`, and `python scripts/validate_package.py`.
 - Treat Universal Analytics examples as migration context only; do not promote UA fields or event models into GA4 plans.
 - Use `scripts/analyze_tracking_plan_corpus.ps1` only for privacy-safe inventory. Generated inventories belong outside the repository.
 
@@ -146,11 +158,23 @@ Use $ga4-tracking-plan to create a GA4 tracking plan for these pages and journey
 
 ## Release Package
 
-The release package should contain `skill/` plus `requirements.txt`. Site-specific tracking plans, screenshots, test evidence, and confidential files should never be committed or attached to releases.
+The release package should contain the reusable `skill/` folder, `requirements.txt`, `README.md`, and `LICENSE`. Site-specific tracking plans, screenshots, test evidence, and confidential files should never be committed or attached to releases.
+
+Build a local package with:
+
+```text
+python scripts/create_release_package.py --version vX.Y.Z
+```
+
+Published GitHub releases build and upload this zip automatically through `.github/workflows/release-package.yml`.
 
 ## Validate Locally
 
 ```text
 python -m pip install -r requirements.txt
+python -m pip install ruff
+ruff check .
+python -m compileall -q scripts skill/scripts tests
+python -m unittest discover -s tests
 python scripts/validate_package.py
 ```

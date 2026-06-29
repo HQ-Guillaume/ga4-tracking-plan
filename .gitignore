@@ -9,7 +9,10 @@ Thumbs.db
 
 __pycache__/
 *.py[cod]
+.ruff_cache/
 .venv/
+.coverage
+htmlcov/
 dist/
 generated/
 deliverables/

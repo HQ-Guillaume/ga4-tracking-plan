@@ -1110,7 +1110,7 @@ def check_measurement_strategy(plan: dict[str, Any], issues: list[Issue]) -> Non
                 issues,
                 "error",
                 "CUSTOM_EVENT_ACCEPTANCE_MISSING",
-                f"$.measurement_strategy.custom_event_acceptance",
+                "$.measurement_strategy.custom_event_acceptance",
                 f"Custom event '{event.get('event_name')}' needs a custom_event_acceptance entry with official alternatives and business rationale.",
             )
 

@@ -1,13 +1,14 @@
-name: Validate skill
+name: Release package
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  release:
+    types: [published]
+
+permissions:
+  contents: write
 
 jobs:
-  validate-skill:
+  release-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,3 +25,11 @@ jobs:
           python -m compileall -q scripts skill/scripts tests
           python -m unittest discover -s tests
           python scripts/validate_package.py
+      - name: Build release zip
+        run: |
+          python scripts/create_release_package.py --version "${{ github.event.release.tag_name }}"
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" release/*.zip --clobber

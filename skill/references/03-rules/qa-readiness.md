@@ -30,12 +30,15 @@ can generate them during QA execution or use structured JSON fields internally.
 ## Future Testing Skill Expectations
 
 - The tracking plan should provide enough information to identify a page or journey, reproduce the event, inspect the dataLayer, and verify GA4 network payloads.
-- Screenshot Register rows should be generated from the event draft and describe
-  event-linked capture objectives, automation cues, and evidence status; they
-  should not depend on local file paths.
+- Screenshot Register rows should be generated from the event draft for every
+  event and describe event-linked capture objectives, automation cues, and
+  evidence status; they should not depend on local file paths.
 - Use selective evidence statuses such as `capture_required`, `captured`,
-  `shared_evidence`, `not_needed`, or `blocked` instead of assuming every event
-  needs its own screenshot.
+  `shared_evidence`, `skip_allowed`, `not_needed`, or `blocked` instead of
+  assuming every event needs its own screenshot.
+- Use `skip_allowed` for login, credential-gated, account, checkout, payment,
+  or otherwise restricted steps when no approved access or safe test
+  environment is available.
 - Screenshots for click, CTA, filter, menu, form submit, or other interaction
   events should mark the relevant element or zone with a red rectangle or
   equivalent visual callout. Prefer no text label in workbook thumbnails; the

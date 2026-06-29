@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from dataclasses import dataclass, asdict
 from html.parser import HTMLParser
 from pathlib import Path
@@ -22,6 +21,13 @@ class LinkSignal:
     url: str
     text: str
     source: str
+
+
+@dataclass
+class SourceError:
+    source_type: str
+    source_ref: str
+    message: str
 
 
 class SignalParser(HTMLParser):
@@ -79,11 +85,12 @@ def same_host(url: str, root: str) -> bool:
     return urlparse(url).netloc.lower() == urlparse(root).netloc.lower()
 
 
-def discover_robots(root_url: str) -> tuple[str, list[str]]:
+def discover_robots(root_url: str, errors: list[SourceError]) -> tuple[str, list[str]]:
     robots_url = urljoin(root_url, "/robots.txt")
     try:
         text = fetch_text(robots_url)
-    except Exception:
+    except Exception as error:
+        errors.append(SourceError("robots_txt", robots_url, str(error)))
         return robots_url, []
     sitemaps = []
     for line in text.splitlines():
@@ -92,14 +99,16 @@ def discover_robots(root_url: str) -> tuple[str, list[str]]:
     return robots_url, sitemaps
 
 
-def parse_sitemap(url: str, limit: int) -> list[str]:
+def parse_sitemap(url: str, limit: int, errors: list[SourceError]) -> list[str]:
     try:
         text = fetch_text(url)
-    except Exception:
+    except Exception as error:
+        errors.append(SourceError("sitemap", url, str(error)))
         return []
     try:
         root = ElementTree.fromstring(text)
-    except ElementTree.ParseError:
+    except ElementTree.ParseError as error:
+        errors.append(SourceError("sitemap", url, f"XML parse error: {error}"))
         return []
     urls = []
     for loc in root.findall(".//{*}loc"):
@@ -209,11 +218,12 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     root_url = args.url if "://" in args.url else f"https://{args.url}"
-    robots_url, robots_sitemaps = discover_robots(root_url)
+    errors: list[SourceError] = []
+    robots_url, robots_sitemaps = discover_robots(root_url, errors)
     sitemap_candidates = robots_sitemaps or [urljoin(root_url, "/sitemap.xml")]
     sitemap_urls: list[str] = []
     for sitemap in sitemap_candidates:
-        sitemap_urls.extend(parse_sitemap(sitemap, args.limit))
+        sitemap_urls.extend(parse_sitemap(sitemap, args.limit, errors))
         if sitemap_urls:
             break
     seed_urls = [root_url, *[url for url in sitemap_urls if same_host(url, root_url)]]
@@ -223,12 +233,16 @@ def main() -> int:
         if url in seen:
             continue
         seen.add(url)
-        pages.append(parse_page(url))
+        page = parse_page(url)
+        pages.append(page)
+        if page.get("fetch_error"):
+            errors.append(SourceError("page", url, str(page["fetch_error"])))
         if len(pages) >= args.limit:
             break
     output = {
         "root_url": root_url,
         "generated_by": "discover_site_journeys.py",
+        "crawl_mode": "static_html",
         "sources_checked": [
             {"source_type": "robots_txt", "source_ref": robots_url, "used_for": "sitemap discovery"},
             *[
@@ -237,6 +251,7 @@ def main() -> int:
             ],
             {"source_type": "browser_exploration", "source_ref": root_url, "used_for": "static HTML link and form discovery"},
         ],
+        "source_errors": [asdict(error) for error in errors],
         "pages_sampled": pages,
         "journeys_discovered": summarize_journeys(pages),
         "notes": [

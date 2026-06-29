@@ -56,6 +56,18 @@ URL patterns. Treat its output as input evidence, not final truth. Use
 Playwright or manual browser exploration for dynamic navigation, filters,
 checkout, account, forms, modals, or SPA routes.
 
+Use `scripts/discover_site_journeys_playwright.py` when rendered DOM discovery
+is needed and the environment can run Playwright:
+
+```powershell
+python scripts/discover_site_journeys_playwright.py https://www.example.com/ --output site_discovery_rendered.json
+```
+
+The rendered helper samples links, forms, and buttons after page load. It does
+not submit forms, log in, place orders, or mutate live state. Treat
+credential-gated or payment-like journeys as `needs_discovery`, `blocked`, or
+`skip_allowed` unless approved test access exists.
+
 ## Playwright Decision
 
 Use Playwright or equivalent browser exploration when:

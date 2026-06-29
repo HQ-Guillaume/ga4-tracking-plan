@@ -9,6 +9,7 @@ Use this reference when reviewing an existing tracking plan example, translating
 - [Comparison Rubric](#comparison-rubric)
 - [Template Policy](#template-policy)
 - [Human And Recette Split](#human-and-recette-split)
+- [Measurement Coherence](#measurement-coherence)
 - [Real-Example Lessons](#real-example-lessons)
 
 ## Review Order
@@ -109,6 +110,13 @@ Keep future recette fields explicit:
 Keep internal IDs, if present in structured JSON for machine linking, out of
 the Event Matrix. Let the future QA/recette skill generate QA case IDs when it
 executes tests.
+
+## Measurement Coherence
+
+Apply `measurement-coherence-review.md` before approving a generated or
+adapted plan. A plan is not acceptable just because every event is valid in
+isolation; the event families, parameters, screenshots, QA cues, and
+not-tracked decisions must explain the same business journey.
 
 ## Real-Example Lessons
 

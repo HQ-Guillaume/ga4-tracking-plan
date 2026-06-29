@@ -29,9 +29,10 @@ A complete tracking plan must show:
 - controlled values normalized and useful for reporting;
 - not-tracked decisions for noisy, duplicate, sensitive, unavailable, or
   non-actionable interactions;
-- Screenshot Register rows generated from the event draft when screenshot
-  evidence is part of the delivery, with capture objective, automation cue, and
-  status rather than local file-path dependence;
+- Screenshot Register rows generated from the event draft for every event, with
+  capture objective, automation cue, and `capture_required`, `captured`,
+  `shared_evidence`, `skip_allowed`, `not_needed`, or `blocked` status rather
+  than local file-path dependence;
 - representative screenshot previews for important page states or interaction
   targets when captured evidence is useful for implementation review or future
   recette;
@@ -83,8 +84,9 @@ Mark the deliverable incomplete or blocked when:
 - parameters have no reporting purpose or value rules;
 - sensitive data is hidden inside generic fields;
 - QA cases are missing for testable events;
-- screenshot evidence is requested or useful but not linked back to event rows,
-  capture objectives, and future recette cues;
+- screenshot evidence rows or explicit skip/not-needed reasons are missing for
+  events, or are not linked back to event rows, capture objectives, and future
+  recette cues;
 - historical or Universal Analytics schema is copied into a GA4 plan.
 - a whole-site plan has no explicit coverage map, source list, or uncovered
   journey assumptions.

@@ -34,6 +34,7 @@ REQUIRED_REFERENCE_FILES = [
     RULES / "mainstream-analytics-tool-policy.md",
     RULES / "business-scenario-analysis.md",
     RULES / "website-archetype-decision-matrix.md",
+    RULES / "measurement-coherence-review.md",
     RULES / "website-coverage-mapping.md",
     RULES / "corpus-learning-policy.md",
     RULES / "custom-event-decision-matrix.md",
@@ -61,6 +62,7 @@ REQUIRED_SKILL_SCRIPTS = [
     SKILL / "scripts" / "validate_tracking_plan.py",
     SKILL / "scripts" / "export_tracking_plan_csv.py",
     SKILL / "scripts" / "discover_site_journeys.py",
+    SKILL / "scripts" / "discover_site_journeys_playwright.py",
     SKILL / "scripts" / "annotate_screenshot.py",
     SKILL / "scripts" / "analyze_tracking_plan_corpus.ps1",
 ]
@@ -69,19 +71,26 @@ REQUIRED_SKILL_FILES = [
     ROOT / "CONTRIBUTING.md",
     ROOT / "SECURITY.md",
     ROOT / ".gitignore",
+    ROOT / "pyproject.toml",
     ROOT / ".github" / "workflows" / "validate-skill.yml",
+    ROOT / ".github" / "workflows" / "release-package.yml",
     ROOT / ".github" / "pull_request_template.md",
     ROOT / ".github" / "ISSUE_TEMPLATE" / "bug_report.yml",
     ROOT / ".github" / "ISSUE_TEMPLATE" / "feature_request.yml",
     ROOT / ".github" / "ISSUE_TEMPLATE" / "config.yml",
+    ROOT / "tests" / "test_discover_site_journeys.py",
+    ROOT / "tests" / "test_root_wrappers.py",
     SKILL / "SKILL.md",
     SKILL / "agents" / "openai.yaml",
     SKILL / "assets" / "ga4_tracking_plan_template.xlsx",
+    ROOT / "scripts" / "_run_skill_script.py",
+    ROOT / "scripts" / "create_release_package.py",
     ROOT / "scripts" / "create_event_scenario_library.py",
     ROOT / "scripts" / "generate_tracking_plan_workbook.py",
     ROOT / "scripts" / "validate_tracking_plan.py",
     ROOT / "scripts" / "export_tracking_plan_csv.py",
     ROOT / "scripts" / "discover_site_journeys.py",
+    ROOT / "scripts" / "discover_site_journeys_playwright.py",
     ROOT / "scripts" / "annotate_screenshot.py",
     ROOT / "scripts" / "analyze_tracking_plan_corpus.ps1",
     ROOT / "scripts" / "validate_package.py",
@@ -99,7 +108,7 @@ EXPECTED_TABS = [
 WORKBOOKS_TO_VALIDATE = [
     SKILL / "assets" / "ga4_tracking_plan_template.xlsx",
 ]
-TEXT_SUFFIXES = {".md", ".py", ".ps1", ".yml", ".yaml", ".json", ".txt", ".gitignore", ".gitattributes"}
+TEXT_SUFFIXES = {".md", ".py", ".ps1", ".toml", ".yml", ".yaml", ".json", ".txt", ".gitignore", ".gitattributes"}
 BANNED_PROJECT_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
     for pattern in [
@@ -190,6 +199,8 @@ def check_repo_maintenance_docs() -> None:
         "Maintenance Checklist",
         "Universal Analytics",
         "validate_package.py",
+        "create_release_package.py",
+        "Screenshot Register row for each event",
     ]:
         if expected not in readme:
             fail(f"README.md is missing maintenance or positioning text: {expected}")
@@ -232,6 +243,7 @@ def check_skill_resource_links() -> None:
         "references/03-rules/mainstream-analytics-tool-policy.md",
         "references/03-rules/business-scenario-analysis.md",
         "references/03-rules/website-archetype-decision-matrix.md",
+        "references/03-rules/measurement-coherence-review.md",
         "references/03-rules/website-coverage-mapping.md",
         "references/03-rules/corpus-learning-policy.md",
         "references/03-rules/custom-event-decision-matrix.md",
@@ -257,6 +269,8 @@ def check_skill_resource_links() -> None:
         "scripts/validate_tracking_plan.py",
         "scripts/export_tracking_plan_csv.py",
         "scripts/discover_site_journeys.py",
+        "scripts/discover_site_journeys_playwright.py",
+        "scripts/annotate_screenshot.py",
         "scripts/analyze_tracking_plan_corpus.ps1",
     ]:
         if rel not in text:
@@ -1071,6 +1085,36 @@ def check_csv_export() -> None:
                 fail(f"CSV exporter Piano ecommerce output is missing {expected}")
 
 
+def check_release_package() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output = Path(temp_dir) / "ga4-tracking-plan-package-test.zip"
+        run_command(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "create_release_package.py"),
+                "--version",
+                "test",
+                "--output",
+                str(output),
+            ],
+            "Release package builder",
+        )
+        if not output.exists():
+            fail("Release package builder did not create a zip")
+        with zipfile.ZipFile(output) as archive:
+            names = set(archive.namelist())
+        for expected in ["skill/SKILL.md", "skill/assets/ga4_tracking_plan_template.xlsx", "requirements.txt", "README.md", "LICENSE"]:
+            if expected not in names:
+                fail(f"Release package is missing {expected}")
+        forbidden = [
+            name
+            for name in names
+            if any(part in {"deliverables", "generated", "release", "tracking-plan-corpus-analysis", "__pycache__"} for part in Path(name).parts)
+        ]
+        if forbidden:
+            fail("Release package includes local artifact paths:\n" + "\n".join(sorted(forbidden)))
+
+
 def event_blocks(ws):
     starts = []
     for row in range(6, ws.max_row + 1):
@@ -1148,6 +1192,35 @@ def check_event_matrix(workbook_path: Path) -> None:
         screenshot_values = {cell.value for row in screenshot_register.iter_rows() for cell in row}
         if "File path or link" in screenshot_values:
             fail(f"{display_path(workbook_path)} Screenshot Register should not expose local file path/link columns")
+        screenshot_statuses = {
+            str(screenshot_register.cell(row, 7).value)
+            for row in range(4, screenshot_register.max_row + 1)
+            if screenshot_register.cell(row, 2).value not in (None, "")
+        }
+        allowed_screenshot_statuses = {
+            "capture_required",
+            "captured",
+            "shared_evidence",
+            "skip_allowed",
+            "not_needed",
+            "blocked",
+        }
+        unexpected_statuses = screenshot_statuses - allowed_screenshot_statuses
+        if unexpected_statuses:
+            fail(f"{display_path(workbook_path)} Screenshot Register has unexpected statuses: {sorted(unexpected_statuses)}")
+        matrix_event_names = []
+        for start, end in event_blocks(ws):
+            for row in range(start, end + 1):
+                if ws.cell(row, 1).value == "event":
+                    matrix_event_names.extend(str(value) for value in event_slot_values(ws, row))
+        screenshot_events = [
+            str(screenshot_register.cell(row, 2).value)
+            for row in range(4, screenshot_register.max_row + 1)
+            if screenshot_register.cell(row, 2).value not in (None, "")
+        ]
+        missing_screenshot_events = sorted(set(matrix_event_names) - set(screenshot_events))
+        if missing_screenshot_events:
+            fail(f"{display_path(workbook_path)} Screenshot Register is missing event rows: {missing_screenshot_events}")
         found_ecommerce_block = False
         for start, end in event_blocks(ws):
             block_name = str(ws.cell(start, 1).value or "")
@@ -1258,6 +1331,7 @@ def main() -> int:
         check_workbooks,
         check_generated_workbook,
         check_csv_export,
+        check_release_package,
         check_confidential_patterns,
     ]
     for check in checks:

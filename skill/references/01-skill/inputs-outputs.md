@@ -42,10 +42,9 @@ Possible outputs:
 - journey-grouped Event Matrix;
 - Parameter Reference with value rules and examples;
 - GTM Protocol;
-- Screenshot Register when screenshots or capture requirements are part of the
-  planning evidence, generated from event rows and focused on capture
-  objectives, automation cues, evidence status, and future recette needs rather
-  than local file paths;
+- Screenshot Register for every event, generated from event rows and focused on
+  capture objectives, automation cues, evidence status, skip/not-needed
+  reasons, and future recette needs rather than local file paths;
 - lightweight QA preparation only when useful for handoff to a QA/recette
   skill;
 - key event recommendations;
