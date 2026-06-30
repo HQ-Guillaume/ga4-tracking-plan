@@ -1,6 +1,8 @@
 # GA4 Tracking Plan
 
-[![Validate skill](https://github.com/HQ-Guillaume/ga4-tracking-plan/actions/workflows/validate-skill.yml/badge.svg)](https://github.com/HQ-Guillaume/ga4-tracking-plan/actions/workflows/validate-skill.yml)
+[![Latest release](https://img.shields.io/github/v/release/haiqigeng/=semver)](https://github.com/haiqigeng/ga4-tracking-plan/releases/latest) ![License](https://img.shields.io/github/license/haiqigeng/ga4-tracking-plan) ![Top language](https://img.shields.io/github/languages/top/haiqigeng/ga4-tracking-plan)
+
+[![Validate skill](https://github.com/haiqigeng/ga4-tracking-plan/actions/workflows/validate-skill.yml/badge.svg)](https://github.com/haiqigeng/ga4-tracking-plan/actions/workflows/validate-skill.yml)
 
 A reusable AI skill for creating GA4 tracking plans with the mindset of a real
 web analyst.
